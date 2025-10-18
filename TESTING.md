@@ -184,7 +184,7 @@ Expected:
 ### Server won't start
 - Ensure dependencies are installed: `npm install`
 - Build the project: `npm run build`
-- Check that Node.js version is 16+ 
+- Check that Node.js version is 16+
 
 ### Calculations seem wrong
 - Verify all inputs are numbers (not strings)
