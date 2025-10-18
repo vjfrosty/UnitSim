@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freemium Funnel Analysis</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f8fafc;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .funnel-flow {
+            padding: 24px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .funnel-stage {
+            display: flex;
+            align-items: center;
+            margin: 16px 0;
+            padding: 16px;
+            border-radius: 8px;
+            background: #f7fafc;
+            border-left: 4px solid #667eea;
+        }
+        
+        .stage-info {
+            flex: 1;
+        }
+        
+        .stage-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: #2d3748;
+            margin-bottom: 4px;
+        }
+        
+        .stage-description {
+            font-size: 14px;
+            color: #718096;
+            margin-bottom: 8px;
+        }
+        
+        .stage-users {
+            font-size: 14px;
+            color: #4a5568;
+        }
+        
+        .stage-metrics {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            min-width: 120px;
+        }
+        
+        .conversion-rate {
+            font-size: 18px;
+            font-weight: 700;
+            color: #38a169;
+            margin-bottom: 4px;
+        }
+        
+        .drop-off-rate {
+            font-size: 14px;
+            color: #e53e3e;
+            margin-bottom: 8px;
+        }
+        
+        .stage-arrow {
+            margin: 0 16px;
+            font-size: 20px;
+            color: #a0aec0;
+        }
+        
+        .funnel-visual {
+            display: flex;
+            justify-content: center;
+            padding: 24px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .funnel-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 200px;
+        }
+        
+        .funnel-segment {
+            position: absolute;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-weight: 600;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .funnel-segment:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .segment-name {
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+        
+        .segment-users {
+            font-size: 14px;
+            font-weight: 700;
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            padding: 24px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .summary-card {
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .card-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 4px;
+        }
+        
+        .card-label {
+            font-size: 14px;
+            color: #718096;
+            font-weight: 500;
+        }
+        
+        .bottlenecks {
+            padding: 24px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .bottlenecks h3 {
+            margin: 0 0 16px 0;
+            color: #2d3748;
+            font-size: 18px;
+        }
+        
+        .bottleneck-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            margin: 8px 0;
+            border-radius: 6px;
+            background: #fff5f5;
+            border-left: 4px solid #e53e3e;
+        }
+        
+        .bottleneck-name {
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .bottleneck-impact {
+            font-size: 14px;
+            color: #e53e3e;
+            font-weight: 600;
+        }
+        
+        .recommendations {
+            padding: 24px;
+            background: #f7fafc;
+        }
+        
+        .recommendations h3 {
+            margin: 0 0 16px 0;
+            color: #2d3748;
+            font-size: 18px;
+        }
+        
+        .recommendation-item {
+            padding: 16px;
+            margin: 12px 0;
+            border-radius: 8px;
+            background: white;
+            border-left: 4px solid #38a169;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .rec-stage {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+        
+        .rec-description {
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+        
+        .rec-impact {
+            font-size: 14px;
+            color: #38a169;
+            font-weight: 600;
+        }
+        
+        .cohort-section {
+            padding: 24px;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .retention-chart {
+            display: flex;
+            align-items: end;
+            height: 100px;
+            margin: 16px 0;
+            padding: 0 16px;
+        }
+        
+        .retention-bar {
+            flex: 1;
+            margin: 0 1px;
+            background: linear-gradient(to top, #667eea, #764ba2);
+            border-radius: 2px 2px 0 0;
+            min-height: 4px;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .retention-bar:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        
+        @media (max-width: 768px) {
+            .funnel-stage {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .stage-metrics {
+                align-items: center;
+                margin-top: 12px;
+            }
+            
+            .stage-arrow {
+                transform: rotate(90deg);
+                margin: 8px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔄 Freemium Funnel Analysis</h1>
+        </div>
+        
+        <div class="funnel-flow">
+            <div id="funnel-stages">
+                <!-- Funnel stages will be populated by JavaScript -->
+            </div>
+        </div>
+        
+        <div class="funnel-visual">
+            <div class="funnel-container" id="funnel-visual">
+                <!-- Visual funnel will be populated by JavaScript -->
+            </div>
+        </div>
+        
+        <div class="summary-cards">
+            <div class="summary-card">
+                <div class="card-value" id="initial-users">-</div>
+                <div class="card-label">Initial Users</div>
+            </div>
+            <div class="summary-card">
+                <div class="card-value" id="final-users">-</div>
+                <div class="card-label">Final Users</div>
+            </div>
+            <div class="summary-card">
+                <div class="card-value" id="overall-conversion">-</div>
+                <div class="card-label">Overall Conversion</div>
+            </div>
+            <div class="summary-card">
+                <div class="card-value" id="revenue-impact">-</div>
+                <div class="card-label">Revenue Impact</div>
+            </div>
+        </div>
+        
+        <div class="bottlenecks">
+            <h3>🚨 Top Bottlenecks</h3>
+            <div id="bottlenecks-list">
+                <!-- Bottlenecks will be populated by JavaScript -->
+            </div>
+        </div>
+        
+        <div class="recommendations">
+            <h3>💡 Optimization Recommendations</h3>
+            <div id="recommendations-list">
+                <!-- Recommendations will be populated by JavaScript -->
+            </div>
+        </div>
+        
+        <div class="cohort-section" id="cohort-section" style="display: none;">
+            <h3>📊 Cohort Survival Analysis</h3>
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <div class="card-value" id="avg-lifetime">-</div>
+                    <div class="card-label">Avg. Lifetime (months)</div>
+                </div>
+                <div class="summary-card">
+                    <div class="card-value" id="customer-ltv">-</div>
+                    <div class="card-label">Customer LTV</div>
+                </div>
+                <div class="summary-card">
+                    <div class="card-value" id="cohort-revenue">-</div>
+                    <div class="card-label">Total Cohort Revenue</div>
+                </div>
+            </div>
+            
+            <h4>Retention Curve</h4>
+            <div class="retention-chart" id="retention-chart">
+                <!-- Retention bars will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Sample data for demonstration
+        const sampleData = {
+            stages: [
+                { stage_name: "Visitor", users_entering: 10000, users_converting: 10000, conversion_rate: 100.0, drop_off_rate: 0.0 },
+                { stage_name: "Signup", users_entering: 10000, users_converting: 1500, conversion_rate: 15.0, drop_off_rate: 85.0 },
+                { stage_name: "Activation", users_entering: 1500, users_converting: 975, conversion_rate: 65.0, drop_off_rate: 35.0 },
+                { stage_name: "Engagement", users_entering: 975, users_converting: 438, conversion_rate: 45.0, drop_off_rate: 55.0 },
+                { stage_name: "Trial", users_entering: 438, users_converting: 109, conversion_rate: 25.0, drop_off_rate: 75.0 },
+                { stage_name: "Paid", users_entering: 109, users_converting: 0, conversion_rate: 0, drop_off_rate: 0.0 }
+            ],
+            summary: {
+                initial_users: 10000,
+                final_users: 109,
+                overall_conversion: 1.09
+            },
+            bottlenecks: [
+                { stage_name: "Signup", drop_off_rate: 85.0, revenue_impact_per_1pct: 5000 },
+                { stage_name: "Trial", drop_off_rate: 75.0, revenue_impact_per_1pct: 219 },
+                { stage_name: "Engagement", drop_off_rate: 55.0, revenue_impact_per_1pct: 488 }
+            ],
+            recommendations: [
+                { stage: "Signup", recommendation: "Reduce friction in registration process, offer social login", potential_impact: "$5,000 per 1% improvement" },
+                { stage: "Trial", recommendation: "Better trial experience and clear upgrade prompts", potential_impact: "$219 per 1% improvement" }
+            ]
+        };
+        
+        function formatNumber(value) {
+            return new Intl.NumberFormat('en-US').format(value);
+        }
+        
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(value);
+        }
+        
+        function renderFunnelStages(data) {
+            const container = document.getElementById('funnel-stages');
+            container.innerHTML = '';
+            
+            data.stages.forEach((stage, index) => {
+                const stageElement = document.createElement('div');
+                stageElement.className = 'funnel-stage';
+                
+                const isLast = index === data.stages.length - 1;
+                const conversionText = isLast ? 'Final Stage' : `${stage.conversion_rate.toFixed(1)}%`;
+                const dropOffText = isLast ? '' : `${stage.drop_off_rate.toFixed(1)}% drop-off`;
+                
+                stageElement.innerHTML = `
+                    <div class="stage-info">
+                        <div class="stage-name">${stage.stage_name}</div>
+                        <div class="stage-description">${stage.stage_description || ''}</div>
+                        <div class="stage-users">${formatNumber(stage.users_entering)} users</div>
+                    </div>
+                    ${!isLast ? '<div class="stage-arrow">→</div>' : ''}
+                    <div class="stage-metrics">
+                        <div class="conversion-rate">${conversionText}</div>
+                        ${dropOffText ? `<div class="drop-off-rate">${dropOffText}</div>` : ''}
+                    </div>
+                `;
+                
+                container.appendChild(stageElement);
+            });
+        }
+        
+        function renderVisualFunnel(data) {
+            const container = document.getElementById('funnel-visual');
+            container.innerHTML = '';
+            
+            const maxUsers = data.stages[0].users_entering;
+            const containerWidth = 800;
+            const containerHeight = 200;
+            
+            data.stages.forEach((stage, index) => {
+                const widthPercent = (stage.users_entering / maxUsers) * 100;
+                const width = (widthPercent / 100) * containerWidth;
+                const left = (containerWidth - width) / 2;
+                const top = (index / (data.stages.length - 1)) * (containerHeight - 40);
+                
+                const segment = document.createElement('div');
+                segment.className = 'funnel-segment';
+                segment.style.cssText = `
+                    left: ${left}px;
+                    top: ${top}px;
+                    width: ${width}px;
+                    height: 35px;
+                `;
+                
+                segment.innerHTML = `
+                    <div class="segment-name">${stage.stage_name}</div>
+                    <div class="segment-users">${formatNumber(stage.users_entering)}</div>
+                `;
+                
+                container.appendChild(segment);
+            });
+        }
+        
+        function renderSummary(data) {
+            document.getElementById('initial-users').textContent = formatNumber(data.summary.initial_users);
+            document.getElementById('final-users').textContent = formatNumber(data.summary.final_users);
+            document.getElementById('overall-conversion').textContent = `${data.summary.overall_conversion.toFixed(2)}%`;
+            
+            const totalImpact = data.bottlenecks.reduce((sum, b) => sum + b.revenue_impact_per_1pct, 0);
+            document.getElementById('revenue-impact').textContent = formatCurrency(totalImpact);
+        }
+        
+        function renderBottlenecks(data) {
+            const container = document.getElementById('bottlenecks-list');
+            container.innerHTML = '';
+            
+            data.bottlenecks.slice(0, 3).forEach(bottleneck => {
+                const item = document.createElement('div');
+                item.className = 'bottleneck-item';
+                item.innerHTML = `
+                    <span class="bottleneck-name">${bottleneck.stage_name} (${bottleneck.drop_off_rate.toFixed(1)}% drop-off)</span>
+                    <span class="bottleneck-impact">${formatCurrency(bottleneck.revenue_impact_per_1pct)} per 1% improvement</span>
+                `;
+                container.appendChild(item);
+            });
+        }
+        
+        function renderRecommendations(data) {
+            const container = document.getElementById('recommendations-list');
+            container.innerHTML = '';
+            
+            data.recommendations.forEach(rec => {
+                const item = document.createElement('div');
+                item.className = 'recommendation-item';
+                item.innerHTML = `
+                    <div class="rec-stage">${rec.stage}</div>
+                    <div class="rec-description">${rec.recommendation}</div>
+                    <div class="rec-impact">Impact: ${rec.potential_impact}</div>
+                `;
+                container.appendChild(item);
+            });
+        }
+        
+        function renderCohortAnalysis(cohortData) {
+            if (!cohortData) return;
+            
+            const section = document.getElementById('cohort-section');
+            section.style.display = 'block';
+            
+            document.getElementById('avg-lifetime').textContent = `${cohortData.lifetime_metrics.average_lifetime_months} mo`;
+            document.getElementById('customer-ltv').textContent = formatCurrency(cohortData.lifetime_metrics.customer_ltv);
+            document.getElementById('cohort-revenue').textContent = formatCurrency(cohortData.lifetime_metrics.total_cohort_revenue);
+            
+            // Render retention chart
+            const chartContainer = document.getElementById('retention-chart');
+            chartContainer.innerHTML = '';
+            
+            cohortData.cohort_data.slice(0, 12).forEach(month => {
+                const bar = document.createElement('div');
+                bar.className = 'retention-bar';
+                bar.style.height = `${month.retention_rate}%`;
+                bar.setAttribute('data-tooltip', `Month ${month.month}: ${month.retention_rate}%`);
+                chartContainer.appendChild(bar);
+            });
+        }
+        
+        function renderFunnelAnalysis(data, cohortData = null) {
+            renderFunnelStages(data);
+            renderVisualFunnel(data);
+            renderSummary(data);
+            renderBottlenecks(data);
+            renderRecommendations(data);
+            
+            if (cohortData) {
+                renderCohortAnalysis(cohortData);
+            }
+        }
+        
+        // Initialize with sample data
+        renderFunnelAnalysis(sampleData);
+        
+        // Function to update with real data (will be called by MCP)
+        window.updateFunnelData = function(newData, newCohortData = null) {
+            renderFunnelAnalysis(newData, newCohortData);
+        };
+    </script>
+</body>
+</html>

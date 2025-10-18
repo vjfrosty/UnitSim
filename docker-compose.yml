@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  unitsim-app:
+    build: ./app
+    container_name: unitsim_app
+    ports:
+      - "127.0.0.1:8000:8000"
+    restart: unless-stopped
+    networks:
+      - unitsim_net
+
+networks:
+  unitsim_net:
+    driver: bridge

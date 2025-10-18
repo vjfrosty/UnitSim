@@ -1,0 +1,12 @@
+mcp[fastapi]>=0.1.0
+fastmcp>=0.2.0
+pydantic>=2.0.0
+fastapi>=0.115.0
+uvicorn>=0.30.0
+
+# Stage 5: Export & Persistence dependencies
+reportlab>=4.0.0
+pandas>=2.0.0
+openpyxl>=3.1.0
+matplotlib>=3.7.0
+Pillow>=10.0.0

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing Tier Analysis</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f8fafc;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            padding: 24px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .metric-card {
+            text-align: center;
+            padding: 16px;
+            border-radius: 8px;
+            background: #f7fafc;
+        }
+        
+        .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 4px;
+        }
+        
+        .metric-label {
+            font-size: 14px;
+            color: #718096;
+            font-weight: 500;
+        }
+        
+        .tiers-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+        }
+        
+        .tiers-table th {
+            background: #edf2f7;
+            padding: 16px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #4a5568;
+            border-bottom: 2px solid #cbd5e0;
+        }
+        
+        .tiers-table td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .tiers-table tbody tr:hover {
+            background: #f7fafc;
+        }
+        
+        .tier-name {
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .price {
+            font-weight: 600;
+            color: #38a169;
+        }
+        
+        .revenue-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .bar {
+            height: 20px;
+            background: linear-gradient(90deg, #48bb78 0%, #38a169 100%);
+            border-radius: 4px;
+            min-width: 20px;
+        }
+        
+        .percentage {
+            font-weight: 600;
+            color: #2d3748;
+            min-width: 40px;
+        }
+        
+        .status-healthy { color: #38a169; }
+        .status-warning { color: #d69e2e; }
+        .status-critical { color: #e53e3e; }
+        
+        .insights {
+            padding: 24px;
+            background: #f7fafc;
+        }
+        
+        .insights h3 {
+            margin: 0 0 12px 0;
+            color: #2d3748;
+            font-size: 18px;
+        }
+        
+        .insight-item {
+            margin: 8px 0;
+            color: #4a5568;
+        }
+        
+        .highlight {
+            font-weight: 600;
+            color: #2d3748;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Pricing Tier Analysis</h1>
+        </div>
+        
+        <div class="summary">
+            <div class="metric-card">
+                <div class="metric-value" id="total-customers">-</div>
+                <div class="metric-label">Total Customers</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="total-mrr">-</div>
+                <div class="metric-label">Total MRR</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="blended-arpa">-</div>
+                <div class="metric-label">Blended ARPA</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="blended-ltv">-</div>
+                <div class="metric-label">Blended LTV</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="ltv-cac-ratio">-</div>
+                <div class="metric-label">LTV/CAC Ratio</div>
+            </div>
+        </div>
+        
+        <table class="tiers-table">
+            <thead>
+                <tr>
+                    <th>Tier Name</th>
+                    <th>Price</th>
+                    <th>Customers</th>
+                    <th>MRR</th>
+                    <th>LTV</th>
+                    <th>LTV/CAC</th>
+                    <th>Revenue %</th>
+                </tr>
+            </thead>
+            <tbody id="tiers-tbody">
+                <!-- Tier rows will be populated by JavaScript -->
+            </tbody>
+        </table>
+        
+        <div class="insights">
+            <h3>💡 Key Insights</h3>
+            <div id="insights-content">
+                <!-- Insights will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // This will be populated with actual data when the widget is used
+        const sampleData = {
+            blended_metrics: {
+                total_customers: 160,
+                total_monthly_mrr: 5500,
+                blended_arpa: 34.38,
+                blended_ltv: 550,
+                blended_ltv_cac_ratio: 3.2
+            },
+            tiers: [
+                {
+                    tier_name: "Basic",
+                    price: 10,
+                    expected_customers: 100,
+                    monthly_mrr: 1000,
+                    ltv: 160,
+                    ltv_cac_ratio: 3.2
+                },
+                {
+                    tier_name: "Pro", 
+                    price: 50,
+                    expected_customers: 50,
+                    monthly_mrr: 2500,
+                    ltv: 800,
+                    ltv_cac_ratio: 4.0
+                },
+                {
+                    tier_name: "Enterprise",
+                    price: 200,
+                    expected_customers: 10,
+                    monthly_mrr: 2000,
+                    ltv: 3200,
+                    ltv_cac_ratio: 6.4
+                }
+            ],
+            analysis: {
+                optimal_tier: "Pro",
+                optimal_tier_revenue: 2500,
+                revenue_distribution: [
+                    { tier: "Basic", percentage: 18.2 },
+                    { tier: "Pro", percentage: 45.5 },
+                    { tier: "Enterprise", percentage: 36.4 }
+                ]
+            }
+        };
+        
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(value);
+        }
+        
+        function formatNumber(value) {
+            return new Intl.NumberFormat('en-US').format(value);
+        }
+        
+        function renderData(data = sampleData) {
+            // Update summary metrics
+            document.getElementById('total-customers').textContent = formatNumber(data.blended_metrics.total_customers);
+            document.getElementById('total-mrr').textContent = formatCurrency(data.blended_metrics.total_monthly_mrr);
+            document.getElementById('blended-arpa').textContent = formatCurrency(data.blended_metrics.blended_arpa);
+            document.getElementById('blended-ltv').textContent = formatCurrency(data.blended_metrics.blended_ltv);
+            document.getElementById('ltv-cac-ratio').textContent = data.blended_metrics.blended_ltv_cac_ratio.toFixed(1) + ':1';
+            
+            // Render tier table
+            const tbody = document.getElementById('tiers-tbody');
+            tbody.innerHTML = '';
+            
+            const maxRevenue = Math.max(...data.tiers.map(t => t.monthly_mrr));
+            
+            data.tiers.forEach(tier => {
+                const revenuePercentage = data.analysis.revenue_distribution.find(d => d.tier === tier.tier_name)?.percentage || 0;
+                const barWidth = (tier.monthly_mrr / maxRevenue) * 100;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="tier-name">${tier.tier_name}</td>
+                    <td class="price">${formatCurrency(tier.price)}/mo</td>
+                    <td>${formatNumber(tier.expected_customers)}</td>
+                    <td>${formatCurrency(tier.monthly_mrr)}</td>
+                    <td>${tier.ltv === "∞" ? "∞" : formatCurrency(tier.ltv)}</td>
+                    <td>${tier.ltv_cac_ratio === "∞" ? "∞" : tier.ltv_cac_ratio.toFixed(1) + ':1'}</td>
+                    <td>
+                        <div class="revenue-bar">
+                            <div class="bar" style="width: ${barWidth}%"></div>
+                            <span class="percentage">${revenuePercentage.toFixed(1)}%</span>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            // Render insights
+            const insightsContent = document.getElementById('insights-content');
+            insightsContent.innerHTML = `
+                <div class="insight-item">
+                    <span class="highlight">Highest Revenue Tier:</span> ${data.analysis.optimal_tier} 
+                    (${formatCurrency(data.analysis.optimal_tier_revenue)}/mo)
+                </div>
+                <div class="insight-item">
+                    <span class="highlight">Total ARR:</span> ${formatCurrency(data.blended_metrics.total_monthly_mrr * 12)}
+                </div>
+                <div class="insight-item">
+                    <span class="highlight">Revenue Concentration:</span> Top tier generates ${Math.max(...data.analysis.revenue_distribution.map(d => d.percentage)).toFixed(1)}% of revenue
+                </div>
+            `;
+        }
+        
+        // Initialize with sample data
+        renderData();
+        
+        // Function to update with real data (will be called by MCP)
+        window.updatePricingData = function(newData) {
+            renderData(newData);
+        };
+    </script>
+</body>
+</html>

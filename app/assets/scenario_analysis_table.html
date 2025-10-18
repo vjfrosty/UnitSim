@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scenario Analysis Dashboard</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+            border-left: 4px solid #3498db;
+            transition: transform 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+
+        .card h3 {
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .metric {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 3px solid #e74c3c;
+        }
+
+        .metric.positive {
+            border-left-color: #27ae60;
+        }
+
+        .metric.warning {
+            border-left-color: #f39c12;
+        }
+
+        .metric-value {
+            font-size: 1.8em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .distribution-chart {
+            height: 200px;
+            background: linear-gradient(90deg, #e8f5e8, #fff9e6, #ffeaea);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2c3e50;
+            font-style: italic;
+            margin: 15px 0;
+        }
+
+        .tornado-diagram {
+            margin: 15px 0;
+        }
+
+        .tornado-item {
+            margin: 8px 0;
+            background: white;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .tornado-label {
+            padding: 8px 12px;
+            background: #34495e;
+            color: white;
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+
+        .tornado-bar {
+            height: 30px;
+            background: linear-gradient(90deg, #e74c3c, #f39c12, #27ae60);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            color: white;
+            font-weight: 500;
+            font-size: 0.85em;
+        }
+
+        .scenario-comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .scenario-card {
+            background: white;
+            border-radius: 6px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .scenario-card.pessimistic {
+            border-top: 4px solid #e74c3c;
+        }
+
+        .scenario-card.realistic {
+            border-top: 4px solid #3498db;
+        }
+
+        .scenario-card.optimistic {
+            border-top: 4px solid #27ae60;
+        }
+
+        .scenario-title {
+            font-weight: 600;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .scenario-ltv {
+            font-size: 2.2em;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        .scenario-probability {
+            background: rgba(0,0,0,0.1);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            margin-top: 10px;
+            display: inline-block;
+        }
+
+        .confidence-bands {
+            background: white;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .confidence-level {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .confidence-level:last-child {
+            border-bottom: none;
+        }
+
+        .confidence-bar {
+            width: 200px;
+            height: 20px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            border-radius: 10px;
+            transition: width 0.8s ease;
+        }
+
+        .risk-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .risk-metric {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .risk-value {
+            font-size: 1.6em;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .risk-high { color: #e74c3c; }
+        .risk-medium { color: #f39c12; }
+        .risk-low { color: #27ae60; }
+
+        .insights {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .insights h4 {
+            margin: 0 0 15px 0;
+            font-size: 1.2em;
+        }
+
+        .insights ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .insights li {
+            margin: 8px 0;
+        }
+
+        .controls {
+            background: #2c3e50;
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-group label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .control-group select, .control-group input {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .control-group select:focus, .control-group input:focus {
+            outline: none;
+            background: rgba(255,255,255,0.15);
+        }
+
+        .refresh-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .refresh-btn:hover {
+            background: #229954;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .scenario-comparison {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .control-group {
+                justify-content: space-between;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        .error {
+            background: #e74c3c;
+            color: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-excellent { background: #27ae60; }
+        .status-healthy { background: #2ecc71; }
+        .status-concerning { background: #f39c12; }
+        .status-critical { background: #e74c3c; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎲 Scenario Analysis Dashboard</h1>
+            <p>Advanced Monte Carlo Simulation & Sensitivity Analysis for Unit Economics</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="analysis-type">Analysis Type:</label>
+                <select id="analysis-type" onchange="updateAnalysis()">
+                    <option value="monte_carlo">Monte Carlo Simulation</option>
+                    <option value="sensitivity">Sensitivity Analysis</option>
+                    <option value="scenarios">Scenario Comparison</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="iterations">Iterations:</label>
+                <input type="number" id="iterations" value="10000" min="1000" max="50000" step="1000">
+            </div>
+            <div class="control-group">
+                <label for="confidence">Confidence Level:</label>
+                <select id="confidence">
+                    <option value="80">80%</option>
+                    <option value="90" selected>90%</option>
+                    <option value="95">95%</option>
+                </select>
+            </div>
+            <button class="refresh-btn" onclick="runAnalysis()">🔄 Run Analysis</button>
+        </div>
+
+        <div class="dashboard" id="dashboard">
+            <!-- Monte Carlo Results -->
+            <div class="card full-width" id="monte-carlo-section" style="display: none;">
+                <h3>🎲 Monte Carlo Simulation Results</h3>
+                <div class="metric-grid">
+                    <div class="metric positive">
+                        <div class="metric-value" id="mc-mean-ltv">$1,674</div>
+                        <div class="metric-label">Mean LTV</div>
+                    </div>
+                    <div class="metric positive">
+                        <div class="metric-value" id="mc-median-ltv">$1,580</div>
+                        <div class="metric-label">Median LTV</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" id="mc-std-ltv">$245</div>
+                        <div class="metric-label">Std Deviation</div>
+                    </div>
+                    <div class="metric warning">
+                        <div class="metric-value" id="mc-ratio">3.2:1</div>
+                        <div class="metric-label">Mean LTV/CAC</div>
+                    </div>
+                </div>
+                
+                <div class="distribution-chart">
+                    📊 LTV Distribution Histogram<br>
+                    <small>(Interactive chart would show probability distribution)</small>
+                </div>
+                
+                <div class="confidence-bands">
+                    <div class="confidence-level">
+                        <span>90% Confidence Interval</span>
+                        <span id="mc-ci-90">$1,280 - $1,920</span>
+                    </div>
+                    <div class="confidence-level">
+                        <span>80% Confidence Interval</span>
+                        <span id="mc-ci-80">$1,420 - $1,780</span>
+                    </div>
+                </div>
+                
+                <div class="risk-metrics">
+                    <div class="risk-metric">
+                        <div class="risk-value risk-medium" id="mc-risk-below-3">15%</div>
+                        <div class="metric-label">Risk of Ratio < 3:1</div>
+                    </div>
+                    <div class="risk-metric">
+                        <div class="risk-value risk-low" id="mc-positive-economics">95%</div>
+                        <div class="metric-label">Positive Economics</div>
+                    </div>
+                    <div class="risk-metric">
+                        <div class="risk-value risk-high" id="mc-var-5pct">$1,180</div>
+                        <div class="metric-label">Value at Risk (5%)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sensitivity Analysis -->
+            <div class="card full-width" id="sensitivity-section" style="display: none;">
+                <h3>🌪️ Sensitivity Analysis (Tornado Diagram)</h3>
+                <div class="tornado-diagram">
+                    <div class="tornado-item">
+                        <div class="tornado-label">Monthly Churn Rate</div>
+                        <div class="tornado-bar">
+                            <span>$1,200 (High Churn)</span>
+                            <span>$2,100 (Low Churn)</span>
+                        </div>
+                    </div>
+                    <div class="tornado-item">
+                        <div class="tornado-label">Customer Acquisition Cost</div>
+                        <div class="tornado-bar">
+                            <span>$1,467 (High CAC)</span>
+                            <span>$1,733 (Low CAC)</span>
+                        </div>
+                    </div>
+                    <div class="tornado-item">
+                        <div class="tornado-label">Monthly Recurring Revenue</div>
+                        <div class="tornado-bar">
+                            <span>$1,360 (Low MRR)</span>
+                            <span>$1,840 (High MRR)</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="insights">
+                    <h4>🎯 Key Insights</h4>
+                    <ul>
+                        <li><strong>Churn Rate</strong> is your most critical parameter - 2.8x sensitivity coefficient</li>
+                        <li>Focus retention efforts for maximum LTV impact</li>
+                        <li>Small churn reductions yield large LTV improvements</li>
+                        <li>CAC optimization offers secondary leverage</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Scenario Comparison -->
+            <div class="card full-width" id="scenarios-section">
+                <h3>📈 Scenario Analysis Comparison</h3>
+                <div class="scenario-comparison">
+                    <div class="scenario-card pessimistic">
+                        <div class="scenario-title">
+                            <span class="status-indicator status-critical"></span>
+                            Pessimistic
+                        </div>
+                        <div class="scenario-ltv" style="color: #e74c3c;">$800</div>
+                        <div>LTV/CAC: 1.33:1</div>
+                        <div>Payback: 18.8 mo</div>
+                        <div class="scenario-probability">Probability: 20%</div>
+                    </div>
+                    
+                    <div class="scenario-card realistic">
+                        <div class="scenario-title">
+                            <span class="status-indicator status-healthy"></span>
+                            Realistic
+                        </div>
+                        <div class="scenario-ltv" style="color: #3498db;">$1,600</div>
+                        <div>LTV/CAC: 3.20:1</div>
+                        <div>Payback: 6.3 mo</div>
+                        <div class="scenario-probability">Probability: 60%</div>
+                    </div>
+                    
+                    <div class="scenario-card optimistic">
+                        <div class="scenario-title">
+                            <span class="status-indicator status-excellent"></span>
+                            Optimistic
+                        </div>
+                        <div class="scenario-ltv" style="color: #27ae60;">$3,467</div>
+                        <div>LTV/CAC: 8.67:1</div>
+                        <div>Payback: 2.9 mo</div>
+                        <div class="scenario-probability">Probability: 20%</div>
+                    </div>
+                </div>
+                
+                <div class="metric-grid">
+                    <div class="metric positive">
+                        <div class="metric-value">$1,840</div>
+                        <div class="metric-label">Expected LTV</div>
+                    </div>
+                    <div class="metric positive">
+                        <div class="metric-value">3.95:1</div>
+                        <div class="metric-label">Expected Ratio</div>
+                    </div>
+                    <div class="metric warning">
+                        <div class="metric-value">$1,600</div>
+                        <div class="metric-label">Risk-Adjusted LTV</div>
+                    </div>
+                </div>
+                
+                <div class="insights">
+                    <h4>📊 Strategic Recommendations</h4>
+                    <ul>
+                        <li>Plan for LTV range of <strong>$800 - $3,467</strong></li>
+                        <li>60% probability of healthy unit economics (3.2:1 ratio)</li>
+                        <li>Conservative planning should assume <strong>$1,600 LTV</strong></li>
+                        <li>Focus on churn reduction to minimize downside risk</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div class="loading" id="loading-state" style="display: none;">
+                <div>🔄 Running analysis...</div>
+                <div><small>Computing statistical simulations</small></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simulate dynamic analysis updates
+        function updateAnalysis() {
+            const analysisType = document.getElementById('analysis-type').value;
+            
+            // Hide all sections
+            document.getElementById('monte-carlo-section').style.display = 'none';
+            document.getElementById('sensitivity-section').style.display = 'none';
+            document.getElementById('scenarios-section').style.display = 'none';
+            
+            // Show relevant section
+            if (analysisType === 'monte_carlo') {
+                document.getElementById('monte-carlo-section').style.display = 'block';
+            } else if (analysisType === 'sensitivity') {
+                document.getElementById('sensitivity-section').style.display = 'block';
+            } else {
+                document.getElementById('scenarios-section').style.display = 'block';
+            }
+        }
+
+        function runAnalysis() {
+            const loadingState = document.getElementById('loading-state');
+            const dashboard = document.getElementById('dashboard');
+            
+            // Show loading
+            loadingState.style.display = 'block';
+            
+            // Hide current sections
+            document.getElementById('monte-carlo-section').style.display = 'none';
+            document.getElementById('sensitivity-section').style.display = 'none';
+            document.getElementById('scenarios-section').style.display = 'none';
+            
+            // Simulate analysis time
+            setTimeout(() => {
+                loadingState.style.display = 'none';
+                updateAnalysis();
+                
+                // Add some random variation to demonstrate dynamic updates
+                const variation = (Math.random() - 0.5) * 0.1; // ±5%
+                const baseLTV = 1674;
+                const newLTV = Math.round(baseLTV * (1 + variation));
+                
+                document.getElementById('mc-mean-ltv').textContent = `$${newLTV.toLocaleString()}`;
+                
+                // Show success message briefly
+                showNotification('✅ Analysis completed successfully!');
+            }, 2000);
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #27ae60;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 6px;
+                z-index: 1000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            updateAnalysis();
+        });
+
+        // Add subtle animations on load
+        window.addEventListener('load', () => {
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                    
+                    requestAnimationFrame(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    });
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>

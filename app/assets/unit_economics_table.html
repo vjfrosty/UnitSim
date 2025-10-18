@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: system-ui; padding: 20px; }
+        .metric { margin: 10px 0; padding: 10px; background: #f5f5f5; border-radius: 5px; }
+        .green { border-left: 4px solid #28a745; }
+        .yellow { border-left: 4px solid #ffc107; }
+        .red { border-left: 4px solid #dc3545; }
+        h2 { margin: 0 0 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>📊 Unit Economics Results</h1>
+    <div id="content">Loading...</div>
+    <script>
+        function render() {
+            const data = window.structuredContent || {
+                ltv: 1600, cac: 500, ltv_cac_ratio: 3.2,
+                payback_months: 6.3, status: "Healthy", status_color: "green"
+            };
+            document.getElementById('content').innerHTML = `
+                <div class="metric ${data.status_color}">
+                    <h2>${data.status}</h2>
+                    <p>LTV: $${data.ltv} | CAC: $${data.cac}</p>
+                    <p>Ratio: ${data.ltv_cac_ratio}:1 | Payback: ${data.payback_months} months</p>
+                </div>
+            `;
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', render);
+        } else { render(); }
+    </script>
+</body>
+</html>
