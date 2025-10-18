@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "unitsim": {
+      "command": "node",
+      "args": [
+        "/absolute/path/to/UnitSim/dist/index.js"
+      ],
+      "env": {}
+    }
+  }
+}
